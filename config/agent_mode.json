@@ -1,0 +1,7 @@
+{
+  "offline": true,
+  "no_embeddings": true,
+  "no_memory": true,
+  "no_retrieval": true,
+  "allowed_tools": ["powershell","filesystem","npm"]
+}

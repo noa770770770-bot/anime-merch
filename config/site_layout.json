@@ -1,0 +1,5 @@
+[
+  { "type": "hero", "props": { "title": "Welcome to AnimeMerch!", "subtitle": "The best anime merch store.", "image": "/products/placeholder.svg" } },
+  { "type": "featured", "props": {} },
+  { "type": "newsletter", "props": {} }
+]

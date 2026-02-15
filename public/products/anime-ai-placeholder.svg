@@ -1,0 +1,14 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" rx="24" fill="#18181b"/>
+  <ellipse cx="200" cy="150" rx="160" ry="90" fill="#7c3aed" fill-opacity="0.12"/>
+  <ellipse cx="200" cy="170" rx="120" ry="60" fill="#f472b6" fill-opacity="0.10"/>
+  <ellipse cx="200" cy="120" rx="80" ry="40" fill="#f59e42" fill-opacity="0.10"/>
+  <text x="50%" y="60%" text-anchor="middle" fill="#fff" font-size="32" font-family="'Montserrat',sans-serif" font-weight="bold" dy=".3em" opacity="0.8">Anime AI</text>
+  <text x="50%" y="72%" text-anchor="middle" fill="#fff" font-size="18" font-family="'Montserrat',sans-serif" font-weight="bold" dy=".3em" opacity="0.5">Placeholder</text>
+  <g opacity="0.18">
+    <circle cx="60" cy="60" r="8" fill="#fff"/>
+    <circle cx="340" cy="80" r="6" fill="#f472b6"/>
+    <circle cx="320" cy="240" r="5" fill="#7c3aed"/>
+    <circle cx="80" cy="220" r="7" fill="#f59e42"/>
+  </g>
+</svg>
