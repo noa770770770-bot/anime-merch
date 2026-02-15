@@ -4,9 +4,9 @@ import { draftStore, publishedStore } from "../../store";
 
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = params.id;
+  const { id } = await context.params;
   // Debug logging for store keys
   console.log("PUBLISH id=", id, "draft keys=", Object.keys(draftStore));
   if (!draftStore[id]) {
