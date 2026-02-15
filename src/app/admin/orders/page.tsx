@@ -29,7 +29,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
           </tr>
         </thead>
         <tbody>
-          {orders.map(o=> (
+          {orders.map((o: (typeof orders)[number]) => (
             <tr key={o.id} style={{borderTop:'1px solid #eee'}}>
               <td>{new Date(o.createdAt).toLocaleString()}</td>
               <td>{o.email}</td>

@@ -1,3 +1,11 @@
+type OrderItemUI = {
+  id: string;
+  qty: number;
+  productId: string;
+  priceILS: number;
+  product?: { name: string } | null;
+  variant?: { name: string; value: string } | null;
+};
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
@@ -21,8 +29,11 @@ export default async function AdminOrderDetail({ params }: { params: { id?: stri
 
       <h3>Items</h3>
       <ul>
-        {order.items.map(i=> (
-          <li key={i.id}>{i.qty}x {i.product?.name ?? i.productId} {i.variant? `(${i.variant.name}:${i.variant.value})` : ''} — {i.priceILS} ILS</li>
+        {(order.items as OrderItemUI[]).map((i) => (
+          <li key={i.id}>
+            {i.qty}x {i.product?.name ?? i.productId}{" "}
+            {i.variant ? `(${i.variant.name}:${i.variant.value})` : ""} — {i.priceILS} ILS
+          </li>
         ))}
       </ul>
 

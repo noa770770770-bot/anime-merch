@@ -113,36 +113,72 @@ export default function EditorShell({ model, pageId }: { model: any; pageId?: st
           Add Text
         </button>
         <button
-          style={{ margin: "8px 0", padding: "8px 16px", background: "#232946", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer" }}
-          onClick={() => setShowPreview((v) => !v)}
+          style={{
+            margin: "8px 0",
+            padding: "8px 16px",
+            background: showPreview && !showLive ? "#2ecc40" : "#232946",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            cursor: "pointer",
+            fontWeight: showPreview && !showLive ? 700 : 400,
+            boxShadow: showPreview && !showLive ? "0 0 0 2px #2ecc40" : undefined,
+          }}
+          onClick={() => {
+            setShowPreview((v) => !v);
+            if (showLive) setShowLive(false);
+          }}
         >
-          {showPreview ? "Hide" : "Show"} Editor Preview
+          {showPreview && !showLive ? "Draft Preview (Active)" : "Show Draft Preview"}
         </button>
         <button
-          style={{ margin: "8px 0", padding: "8px 16px", background: showLive ? "#ffb347" : "#232946", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer" }}
-          onClick={() => setShowLive((v) => !v)}
+          style={{
+            margin: "8px 0",
+            padding: "8px 16px",
+            background: showLive ? "#ffb347" : "#232946",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            cursor: "pointer",
+            fontWeight: showLive ? 700 : 400,
+            boxShadow: showLive ? "0 0 0 2px #ffb347" : undefined,
+          }}
+          onClick={() => {
+            setShowLive((v) => !v);
+            if (showPreview) setShowPreview(false);
+          }}
         >
-          {showLive ? "Show Editor Model" : "Show Live Homepage"}
+          {showLive ? "Published Site (Active)" : "Show Published Site"}
         </button>
         {/* Save/Publish buttons, history, etc. */}
       </div>
       <div style={{ flex: 1, position: "relative", background: "#fff" }}>
         {/* Real site preview in iframe */}
-        {pageId && !showLive && (
-          <iframe
-            ref={previewRef}
-            src={`/__editor_preview?pageId=${encodeURIComponent(pageId)}`}
-            className="editorPreview"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", zIndex: 1, background: "#fff" }}
-            title="Site Preview"
-          />
+        {pageId && showPreview && !showLive && (
+          <>
+            <iframe
+              ref={previewRef}
+              src={`/__editor_preview?pageId=${encodeURIComponent(pageId)}`}
+              className="editorPreview"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", zIndex: 1, background: "#fff" }}
+              title="Draft Preview"
+            />
+            <div style={{ position: "absolute", top: 8, right: 16, zIndex: 10, background: "#2ecc40", color: "#fff", padding: "2px 10px", borderRadius: 6, fontSize: 13, fontWeight: 600, opacity: 0.85 }}>
+              Draft Preview
+            </div>
+          </>
         )}
         {showLive && (
-          <iframe
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", zIndex: 1, background: "#fff" }}
-            src="/"
-            title="Live Homepage Preview"
-          />
+          <>
+            <iframe
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", zIndex: 1, background: "#fff" }}
+              src="/"
+              title="Published Site Preview"
+            />
+            <div style={{ position: "absolute", top: 8, right: 16, zIndex: 10, background: "#ffb347", color: "#fff", padding: "2px 10px", borderRadius: 6, fontSize: 13, fontWeight: 600, opacity: 0.85 }}>
+              Published Site
+            </div>
+          </>
         )}
         {/* Editor overlays above iframe */}
         <div className="editorOverlay" style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>

@@ -1,5 +1,6 @@
 import './globals.css';
 import Header from '@/components/Header';
+import Banner from '@/components/Banner';
 import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
 import type { ReactNode } from 'react';
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body style={{background:'linear-gradient(180deg,#0b1220 0%, #23232b 100%)', color:'#fff', minHeight:'100dvh', fontFamily: 'Montserrat, Inter, Arial, sans-serif'}}>
         <Header />
+        <Banner />
         <main style={{maxWidth:1100, margin:'0 auto', padding:'32px 16px'}}>
           <Providers>{children}</Providers>
         </main>
