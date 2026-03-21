@@ -7,6 +7,8 @@ import type { ReactNode } from 'react';
 
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Otaku Merch — Premium Israeli Anime Store',
   description: 'Shop the best anime figures, apparel, accessories, and collectibles in Israel. Premium quality, fast priority shipping.',
