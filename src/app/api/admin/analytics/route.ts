@@ -37,7 +37,7 @@ export async function GET() {
     });
     
     const topProducts = items.map((item: any) => {
-      const prodName = products.find(p => p.id === item.productId)?.name || 'Unknown';
+      const prodName = products.find((p: any) => p.id === item.productId)?.name || 'Unknown';
       // Truncate name for charting
       const shortName = prodName.length > 20 ? prodName.substring(0, 20) + '...' : prodName;
       return { name: shortName, sales: item._sum.qty || 0 };
