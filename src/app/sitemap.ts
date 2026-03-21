@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // In a real Vercel deployment, this would be an environment variable.
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://anime-merch-israel.com'; 
