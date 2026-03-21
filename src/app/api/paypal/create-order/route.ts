@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log('CREATE ORDER BODY:', JSON.stringify(body));
-    const { items } = body;
+    const { items, promoCodeId } = body;
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ ok: false, error: 'Empty cart' }, { status: 400 });
     }
@@ -19,20 +19,50 @@ export async function POST(req: Request) {
       }
     }
 
+    // Auth & VIP check
+    const { getServerSession } = await import('next-auth/next');
+    const { authOptions } = await import('@/app/api/auth/[...nextauth]/route');
+    const session = await getServerSession(authOptions);
+    let isVIP = false;
+    let userRecord = null;
+    if (session?.user?.email) {
+      userRecord = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (userRecord?.isVIP) isVIP = true;
+    }
+
     // compute total from DB prices
     const ids = items.map((i: any) => i.productId);
     const products = await prisma.product.findMany({ where: { id: { in: ids } } });
-    const priceMap = new Map(products.map((p: any) => [p.id, p.priceILS] as [any, any]));
-    const totalILS = items.reduce((sum: number, i: any) => {
+    const priceMap = new Map(products.map((p: any) => [p.id, p.priceILS]));
+    
+    let totalILS = items.reduce((sum: number, i: any) => {
       const price = priceMap.get(i.productId) ?? 0;
       return sum + price * i.qty;
     }, 0);
+
+    // Apply VIP 15% permanent discount
+    if (isVIP) {
+      totalILS = Math.max(0, totalILS - Math.round(totalILS * 0.15));
+    }
+
+    // Apply specific Promo Codes ON TOP of VIP
+    if (promoCodeId) {
+       const promo = await prisma.promoCode.findUnique({ where: { id: promoCodeId } });
+       if (promo && promo.active && (!promo.usageLimit || promo.usageCount < promo.usageLimit) && (!promo.expiresAt || promo.expiresAt > new Date())) {
+           totalILS = Math.max(0, totalILS - Math.round(totalILS * (promo.discountPercentage / 100)));
+       }
+    }
 
     if (totalILS <= 0) {
       return NextResponse.json({ ok: false, error: 'Computed totalILS <= 0', items, products }, { status: 400 });
     }
 
-    const order = await prisma.order.create({ data: { totalILS } });
+    const order = await prisma.order.create({ 
+      data: { 
+        totalILS,
+        ...(userRecord ? { userId: userRecord.id, email: userRecord.email } : {})
+      } 
+    });
 
     const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64');
     const paypalRes = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', {

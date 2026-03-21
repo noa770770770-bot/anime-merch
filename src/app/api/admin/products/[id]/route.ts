@@ -1,23 +1,71 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+// GET single product with variants
+export async function GET(req: NextRequest, context: any) {
   try {
-    const form = await req.formData();
     const { id } = await context.params;
-    const name = String(form.get('name') || '');
-    const slug = String(form.get('slug') || '');
-    const description = String(form.get('description') || '');
-    const priceILS = Number(form.get('priceILS'));
-    const imageUrl = String(form.get('imageUrl') || '');
-    const active = form.get('active') !== null;
-    if (!name || !slug || !priceILS || priceILS <= 0) return NextResponse.json({ ok: false, error: 'invalid' }, { status: 400 });
+    const product = await prisma.product.findUnique({ where: { id }, include: { variants: true } });
+    if (!product) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+    return NextResponse.json({ product });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+// PUT - update product (JSON)
+export async function PUT(req: NextRequest, context: any) {
+  try {
+    const { id } = await context.params;
+    const body = await req.json();
+    const { name, slug, description, priceILS, imageUrl, active, categoryId } = body;
+    if (!name || !slug || !priceILS || Number(priceILS) <= 0) {
+      return NextResponse.json({ ok: false, error: 'Invalid fields' }, { status: 400 });
+    }
     const prod = await prisma.product.findUnique({ where: { id } });
     if (!prod) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 });
-    await prisma.product.update({ where: { id }, data: { name, slug, description, priceILS, imageUrl, active } });
+    await prisma.product.update({
+      where: { id },
+      data: { name, slug, description: description || null, priceILS: Number(priceILS), imageUrl: imageUrl || null, active: Boolean(active), categoryId: categoryId || null },
+    });
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    console.error(e);
+    return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
+  }
+}
+
+// POST - also support for legacy form submissions
+export async function POST(req: NextRequest, context: any) {
+  try {
+    const { id } = await context.params;
+    const body = await req.json();
+    const { name, slug, description, priceILS, imageUrl, active, categoryId } = body;
+    if (!name || !slug || !priceILS || Number(priceILS) <= 0) {
+      return NextResponse.json({ ok: false, error: 'Invalid fields' }, { status: 400 });
+    }
+    const prod = await prisma.product.findUnique({ where: { id } });
+    if (!prod) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 });
+    await prisma.product.update({
+      where: { id },
+      data: { name, slug, description: description || null, priceILS: Number(priceILS), imageUrl: imageUrl || null, active: Boolean(active), categoryId: categoryId || null },
+    });
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
+  }
+}
+
+// DELETE - delete product
+export async function DELETE(req: NextRequest, context: any) {
+  try {
+    const { id } = await context.params;
+    const prod = await prisma.product.findUnique({ where: { id } });
+    if (!prod) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 });
+    // Delete variants first, then product
+    await prisma.productVariant.deleteMany({ where: { productId: id } });
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
     return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
   }
 }

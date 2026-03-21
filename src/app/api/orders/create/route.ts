@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Resend } from 'resend';
+
+const resend = new Resend('re_MqXBzCMy_E3fZFintGwgS4qhdboYAYHNU');
 
 export async function POST(req: Request){
   try{
     const body = await req.json();
-    const { items, email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry } = body;
+    const { items, email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry, promoCodeId } = body;
     if(!Array.isArray(items) || items.length===0) return NextResponse.json({ ok:false, error:'empty_cart' }, { status:400 });
 
     // validate and compute totals from DB
@@ -35,6 +38,16 @@ export async function POST(req: Request){
       orderItemsData.push({ productId: prod.id, variantId, qty, priceILS: price });
     }
 
+    // Apply Promo Code discounts securely server-side
+    if (promoCodeId) {
+       const promo = await prisma.promoCode.findUnique({ where: { id: promoCodeId } });
+       if (!promo || !promo.active || (promo.usageLimit && promo.usageCount >= promo.usageLimit) || (promo.expiresAt && promo.expiresAt < new Date())) {
+           return NextResponse.json({ ok: false, error: 'Promo invalid or expired' }, { status: 400 });
+       }
+       const discountAmount = Math.round(totalILS * (promo.discountPercentage / 100));
+       totalILS = totalILS - discountAmount;
+    }
+
     // perform atomic transaction: check stocks, create order + items, decrement stocks
     const result = await prisma.$transaction(async (tx)=>{
       // check variant stocks
@@ -52,7 +65,11 @@ export async function POST(req: Request){
         }
       }
 
-      const order = await tx.order.create({ data: { email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry, totalILS, status: 'CREATED' } });
+      const order = await tx.order.create({ data: { email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry, totalILS, status: 'CREATED', promoCodeId: promoCodeId || null } });
+      
+      if (promoCodeId) {
+         await tx.promoCode.update({ where: { id: promoCodeId }, data: { usageCount: { increment: 1 } } });
+      }
 
       for(const oi of orderItemsData){
         await tx.orderItem.create({ data: { orderId: order.id, productId: oi.productId, variantId: oi.variantId, qty: oi.qty, priceILS: oi.priceILS } });
@@ -63,6 +80,39 @@ export async function POST(req: Request){
 
       return { orderId: order.id };
     });
+
+    // Send automated email receipt via Resend
+    try {
+      let itemsListHtml = '';
+      for (const oi of orderItemsData) {
+        const p = productMap.get(oi.productId);
+        itemsListHtml += `<li><strong>${p?.name || oi.productId}</strong> (Qty <strong>${oi.qty}</strong>) - ${oi.priceILS * oi.qty} ₪</li>`;
+      }
+      const orderHtml = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h1 style="color: #6366f1; text-align: center;">Order Confirmed! 🎉</h1>
+          <p>Hi ${shippingName},</p>
+          <p>Thank you for purchasing from AnimeMerch. Your order <strong>#${result.orderId}</strong> was received and is being prepared.</p>
+          <h3 style="border-bottom: 2px solid #eee; padding-bottom: 8px;">Order Summary</h3>
+          <ul style="list-style: none; padding: 0;">
+            ${itemsListHtml}
+          </ul>
+          <div style="font-size: 18px; font-weight: bold; margin-top: 20px; text-align: right;">
+            Total Paid: <span style="color: #ef4444;">${totalILS} ₪</span>
+          </div>
+        </div>
+      `;
+
+      await resend.emails.send({
+        from: 'Anime Merch <onboarding@resend.dev>',
+        to: email,
+        subject: `AnimeMerch: Order #${result.orderId} Confirmed`,
+        html: orderHtml
+      });
+      console.log('Receipt email sent to', email);
+    } catch (emailErr) {
+      console.error('Failed to send receipt email', emailErr);
+    }
 
     return NextResponse.json({ ok: true, orderId: result.orderId });
   }catch(e:any){

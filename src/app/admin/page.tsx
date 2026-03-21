@@ -1,103 +1,101 @@
-// src/app/admin/page.tsx
-import Link from "next/link";
+import prisma from '@/lib/prisma';
+import Link from 'next/link';
+import AdminCharts from '@/components/AdminCharts';
 
-const tiles = [
-  {
-    title: "Products",
-    desc: "Add / edit products & variants",
-    href: "/admin/products",
-    cta: "Manage Products",
-    quick: [{ label: "Add product", href: "/admin/products/new" }],
-  },
-  {
-    title: "Orders",
-    desc: "View orders and order items",
-    href: "/admin/orders",
-    cta: "View Orders",
-    quick: [],
-  },
-  {
-    title: "Categories",
-    desc: "Manage product categories",
-    href: "/admin/categories",
-    cta: "Manage Categories",
-    quick: [{ label: "Add category", href: "/admin/categories/new" }],
-  },
-  {
-    title: "Pages",
-    desc: "Edit site pages / content",
-    href: "/admin/pages",
-    cta: "Manage Pages",
-    quick: [],
-  },
-  {
-    title: "Site Editor",
-    desc: "Visual editor / site settings",
-    href: "/admin/site-editor",
-    cta: "Open Site Editor",
-    quick: [],
-  },
-  {
-    title: "Users",
-    desc: "Admin users list",
-    href: "/admin/users",
-    cta: "View Users",
-    quick: [],
-  },
-];
+export default async function AdminDashboard() {
+  const [productCount, orderCount, userCount, recentOrders] = await Promise.all([
+    prisma.product.count(),
+    prisma.order.count(),
+    prisma.user.count(),
+    prisma.order.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
+  ]);
 
-export default function AdminHome() {
+  // Calculate revenue
+  const orders = await prisma.order.findMany({ where: { status: { in: ['CREATED', 'PAID', 'FULFILLED', 'SHIPPED'] } } });
+  const revenue = orders.reduce((s, o) => s + o.totalILS, 0);
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
+    <div>
+      <div className="page-header">
         <div>
-          <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-          <p className="opacity-80">Quick access to manage your store.</p>
+          <h1>Dashboard</h1>
+          <p className="page-subtitle">Overview of your store</p>
         </div>
-
-        <div className="flex gap-2">
-          <Link className="btn" href="/admin/products/new">
-            + Add Product
-          </Link>
-          <Link className="btn" href="/admin/categories/new">
-            + Add Category
-          </Link>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link href="/admin/products/new" className="btn btn-primary">+ Add Product</Link>
         </div>
       </div>
 
-      {/* “Tabs” style quick nav */}
-      <div className="flex flex-wrap gap-2">
-        <Link className="btn" href="/admin/products">Products</Link>
-        <Link className="btn" href="/admin/orders">Orders</Link>
-        <Link className="btn" href="/admin/categories">Categories</Link>
-        <Link className="btn" href="/admin/pages">Pages</Link>
-        <Link className="btn" href="/admin/site-editor">Site Editor</Link>
-        <Link className="btn" href="/admin/users">Users</Link>
+      {/* Stats Cards */}
+      <div className="stats-grid" style={{ marginBottom: 32 }}>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--accent2)' }}>{productCount}</div>
+          <div className="stat-label">Products</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--accent)' }}>{orderCount}</div>
+          <div className="stat-label">Total Orders</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--accent3)' }}>{revenue} ₪</div>
+          <div className="stat-label">Revenue</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--success)' }}>{userCount}</div>
+          <div className="stat-label">Registered Users</div>
+        </div>
       </div>
 
-      {/* Tiles */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {tiles.map((t) => (
-          <div key={t.title} className="card p-4 space-y-3">
-            <div>
-              <div className="text-lg font-semibold">{t.title}</div>
-              <div className="opacity-80">{t.desc}</div>
-            </div>
+      {/* Quick Actions */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 32, flexWrap: 'wrap' }}>
+        <Link href="/admin/products" className="btn btn-secondary">📦 Manage Products</Link>
+        <Link href="/admin/orders" className="btn btn-secondary">🧾 View Orders</Link>
+        <Link href="/admin/categories" className="btn btn-secondary">🗂️ Categories</Link>
+        <Link href="/admin/promos" className="btn btn-secondary">🎫 Promos</Link>
+        <Link href="/admin/users" className="btn btn-secondary">👤 Users</Link>
+      </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Link className="btn" href={t.href}>
-                {t.cta}
-              </Link>
-              {t.quick.map((q) => (
-                <Link key={q.href} className="btn" href={q.href}>
-                  {q.label}
-                </Link>
-              ))}
-            </div>
+      {/* Advanced Revenue Visualization Engine */}
+      <AdminCharts />
+
+      {/* Recent Orders */}
+      <div>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: 16 }}>Recent Orders</h2>
+        {recentOrders.length === 0 ? (
+          <div style={{ color: 'var(--text-muted)', padding: 24 }}>No orders yet.</div>
+        ) : (
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Email</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((o: any) => (
+                  <tr key={o.id}>
+                    <td>{new Date(o.createdAt).toLocaleString()}</td>
+                    <td>{o.email || '—'}</td>
+                    <td style={{ fontWeight: 700 }}>{o.totalILS} ₪</td>
+                    <td>
+                      <span className={`badge ${o.status === 'PAID' || o.status === 'FULFILLED' ? 'badge-success' : o.status === 'SHIPPED' ? 'badge-info' : o.status === 'CANCELED' || o.status === 'FAILED' ? 'badge-danger' : 'badge-warning'}`}>
+                        {o.status}
+                      </span>
+                    </td>
+                    <td>
+                      <Link href={`/admin/orders/${o.id}`} className="btn btn-ghost btn-sm">View</Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 }
-

@@ -1,12 +1,15 @@
 export type CartItem = {
-  productId: number;
+  productId: string;
   qty: number;
+  variantId?: string | null;
 };
 
 export type ProductLite = {
-  id: number;
+  id: string;
   name: string;
-  price_ils: number;
-  image_url?: string | null;
+  slug: string;
+  priceILS: number;
+  imageUrl?: string | null;
+  images?: string[] | null;
   description?: string | null;
 };

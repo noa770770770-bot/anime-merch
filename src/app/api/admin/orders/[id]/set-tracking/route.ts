@@ -1,17 +1,18 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+// POST - set tracking number (JSON)
+export async function POST(req: NextRequest, context: any) {
   try {
-    const form = await req.formData();
     const { id } = await context.params;
-    const trackingNumber = String(form.get('trackingNumber'));
+    const body = await req.json();
+    const { trackingNumber } = body;
+    if (!trackingNumber) return NextResponse.json({ ok: false, error: 'Tracking number required' }, { status: 400 });
     const order = await prisma.order.findUnique({ where: { id } });
-    if (!order) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 });
+    if (!order) return NextResponse.json({ ok: false, error: 'Order not found' }, { status: 404 });
     await prisma.order.update({ where: { id }, data: { trackingNumber, status: 'SHIPPED' } });
-    return NextResponse.redirect(`/admin/orders/${id}`);
+    return NextResponse.json({ ok: true });
   } catch (e: any) {
-    console.error(e);
     return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
   }
 }

@@ -1,15 +1,9 @@
-import Link from 'next/link';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
-export default function AccountPage() {
-  return (
-    <div style={{maxWidth:480, margin:'40px auto'}}>
-      <h1>Account</h1>
-      <ul style={{marginTop:24, fontSize:18, fontWeight:600}}>
-        <li><Link href="/account/login">Login</Link></li>
-        <li><Link href="/account/register">Register</Link></li>
-        <li><Link href="/account/orders">Order History</Link></li>
-        <li><Link href="/account/profile">Profile</Link></li>
-      </ul>
-    </div>
-  );
+export default async function AccountPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/account/login");
+  redirect("/account/profile");
 }

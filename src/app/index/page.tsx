@@ -1,7 +1,6 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
-import EditableOverlay from '@/components/EditableOverlay';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
@@ -22,15 +21,9 @@ export default async function Home() {
       </section>
 
       <section className="home-features">
-        <EditableOverlay label="Feature Card" draggable>
-          <Card><h4>Fast shipping</h4><p>Ships in 1-3 business days.</p></Card>
-        </EditableOverlay>
-        <EditableOverlay label="Feature Card" draggable>
-          <Card><h4>Premium quality</h4><p>Top materials and printing.</p></Card>
-        </EditableOverlay>
-        <EditableOverlay label="Feature Card" draggable>
-          <Card><h4>Easy returns</h4><p>30-day returns policy.</p></Card>
-        </EditableOverlay>
+        <Card><h4>Fast shipping</h4><p>Ships in 1-3 business days.</p></Card>
+        <Card><h4>Premium quality</h4><p>Top materials and printing.</p></Card>
+        <Card><h4>Easy returns</h4><p>30-day returns policy.</p></Card>
       </section>
 
       <section className="home-featured">
@@ -49,15 +42,13 @@ export default async function Home() {
               imgSrc = p.imageUrl;
             }
             return (
-              <EditableOverlay key={p.id} label="Product Card" draggable>
-                <Card className="product-card">
-                  <img src={imgSrc} alt={p.name} className="product-image" />
-                  <div className="product-info">
-                    <div className="product-title">{p.name}</div>
-                    <div className="product-price">{p.priceILS} ILS</div>
-                  </div>
-                </Card>
-              </EditableOverlay>
+              <Card key={p.id} className="product-card">
+                <img src={imgSrc} alt={p.name} className="product-image" />
+                <div className="product-info">
+                  <div className="product-title">{p.name}</div>
+                  <div className="product-price">{p.priceILS} ILS</div>
+                </div>
+              </Card>
             );
           })}
         </div>

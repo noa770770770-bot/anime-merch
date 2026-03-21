@@ -5,8 +5,8 @@
 export const EditorContext = createContext({
   pageId: "",
   route: "",
-  selectedId: null,
-  editingId: null,
+  selectedId: null as string | null,
+  editingId: null as string | null,
   setSelectedId: (id: string | null) => {},
   setEditingId: (id: string | null) => {},
   updateNode: (id: string, props: any) => {},

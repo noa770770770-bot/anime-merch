@@ -5,9 +5,9 @@ import type { CartItem } from '@/types/cart';
 
 type CartState = {
   items: CartItem[];
-  add: (productId: number, qty?: number) => void;
-  update: (productId: number, qty: number) => void;
-  remove: (productId: number) => void;
+  add: (productId: string, qty?: number, variantId?: string) => void;
+  update: (productId: string, qty: number, variantId?: string | null) => void;
+  remove: (productId: string, variantId?: string | null) => void;
   clear: () => void;
   totalQuantity: number;
 };
@@ -20,25 +20,39 @@ export function useCart() {
   return ctx;
 }
 
+function cartKey(productId: string, variantId?: string | null) {
+  return variantId ? `${productId}__${variantId}` : productId;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useLocalStorage<CartItem[]>('cart_v1', []);
 
-  const add = (productId: number, qty = 1) => {
+  const add = (productId: string, qty = 1, variantId?: string) => {
     setItems((prev) => {
-      const found = prev.find((i) => i.productId === productId);
+      const found = prev.find((i) => i.productId === productId && (i.variantId || null) === (variantId || null));
       if (found) {
-        return prev.map((i) => (i.productId === productId ? { ...i, qty: i.qty + qty } : i));
+        return prev.map((i) =>
+          i.productId === productId && (i.variantId || null) === (variantId || null)
+            ? { ...i, qty: i.qty + qty }
+            : i
+        );
       }
-      return [...prev, { productId, qty }];
+      return [...prev, { productId, qty, variantId: variantId || undefined }];
     });
   };
 
-  const update = (productId: number, qty: number) => {
-    setItems((prev) => prev.map((i) => (i.productId === productId ? { ...i, qty: Math.max(1, qty) } : i)));
+  const update = (productId: string, qty: number, variantId?: string | null) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.productId === productId && (i.variantId || null) === (variantId || null)
+          ? { ...i, qty: Math.max(1, qty) }
+          : i
+      )
+    );
   };
 
-  const remove = (productId: number) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const remove = (productId: string, variantId?: string | null) => {
+    setItems((prev) => prev.filter((i) => !(i.productId === productId && (i.variantId || null) === (variantId || null))));
   };
 
   const clear = () => setItems([]);

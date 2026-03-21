@@ -1,33 +1,50 @@
 import './globals.css';
 import Header from '@/components/Header';
-import Banner from '@/components/Banner';
 import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
+import ScrollToTop from '@/components/ScrollToTop';
 import type { ReactNode } from 'react';
 
-export const metadata = {
-  title: 'Anime Merch',
-  description: 'Anime merch store'
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Otaku Merch — Premium Israeli Anime Store',
+  description: 'Shop the best anime figures, apparel, accessories, and collectibles in Israel. Premium quality, fast priority shipping.',
+  keywords: 'anime, merch, israel, figures, apparel, collectibles, otaku',
+  openGraph: {
+    type: 'website',
+    locale: 'he_IL',
+    url: 'https://anime-merch-israel.com',
+    title: 'Otaku Merch — Premium Israeli Anime Store',
+    description: 'Shop the best anime figures, apparel, accessories, and collectibles. Premium quality, fast shipping.',
+    siteName: 'Otaku Merch Israel',
+    images: [{ url: '/logo.png', width: 800, height: 600, alt: 'Otaku Merch Logo' }]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Otaku Merch — Premium Israeli Anime Store',
+    description: 'Shop the best anime figures, apparel, accessories, and collectibles in Israel. Premium quality, fast priority shipping.',
+    images: ['/logo.png'],
+  }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@700&display=swap" rel="stylesheet" />
-        <style>{`
-          body { font-family: 'Montserrat', 'Inter', Arial, sans-serif; font-weight: 900; letter-spacing: 0.01em; }
-          h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat', Arial, sans-serif; font-weight: 900; letter-spacing: 0.01em; }
-        `}</style>
-      <script async defer data-domain="anime-merch.local" src="https://plausible.io/js/plausible.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body style={{background:'linear-gradient(180deg,#0b1220 0%, #23232b 100%)', color:'#fff', minHeight:'100dvh', fontFamily: 'Montserrat, Inter, Arial, sans-serif'}}>
-        <Header />
-        <Banner />
-        <main style={{maxWidth:1100, margin:'0 auto', padding:'32px 16px'}}>
-          <Providers>{children}</Providers>
-        </main>
-        <Footer />
+      <body>
+        <Providers>
+          <Header />
+          <main style={{ minHeight: 'calc(100dvh - var(--header-height) - 200px)' }}>
+            {children}
+          </main>
+          <Footer />
+          <ScrollToTop />
+        </Providers>
       </body>
     </html>
   );

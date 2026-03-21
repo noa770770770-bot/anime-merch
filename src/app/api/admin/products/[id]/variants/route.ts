@@ -1,15 +1,20 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+// POST - create variant
+export async function POST(req: NextRequest, context: any) {
   try {
     const body = await req.json();
     const { id } = await context.params;
     const { name, value, stock, priceILS } = body;
-    if (!name || !value) return NextResponse.json({ ok: false, error: 'missing' }, { status: 400 });
+    if (!name || !value) return NextResponse.json({ ok: false, error: 'Name and value are required' }, { status: 400 });
     const prod = await prisma.product.findUnique({ where: { id } });
-    if (!prod) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 });
-    const v = await prisma.productVariant.create({ data: { productId: id, name, value, stock: Number(stock) || 0, priceILS: priceILS ? Number(priceILS) : null } });
+    if (!prod) return NextResponse.json({ ok: false, error: 'Product not found' }, { status: 404 });
+    const v = await prisma.productVariant.create({
+      data: { productId: id, name, value, stock: Number(stock) || 0, priceILS: priceILS != null && priceILS !== '' ? Number(priceILS) : null },
+    });
     return NextResponse.json({ ok: true, variant: v });
-  } catch (e: any) { console.error(e); return NextResponse.json({ ok: false, error: e.message }, { status: 500 }); }
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
+  }
 }

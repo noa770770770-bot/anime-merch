@@ -1,70 +1,78 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  async function submit(e: any) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Registration failed");
-      return;
+    setLoading(true);
+
+    try {
+      // 1. Create the user
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to register account');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Automatically sign them in
+      const signInRes = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (signInRes?.error) {
+        setError('Account created, but automatic login failed. Please go to Login.');
+        setLoading(false);
+      } else {
+        window.location.href = '/account/profile';
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during registration');
+      setLoading(false);
     }
-    setSuccess(true);
-    setTimeout(() => router.push("/account/login"), 1200);
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "40px auto" }}>
-      <h1>Register</h1>
-      <form onSubmit={submit}>
-        <div>
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            required
-            style={{ width: "100%", padding: 10, marginBottom: 12, borderRadius: 8, fontSize: 18 }}
-          />
+    <div style={{ maxWidth: 400, margin: "64px auto", padding: '0 20px' }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: 24, textAlign: 'center', fontWeight: 900 }}>Create Account</h1>
+      <form onSubmit={submit} style={{ padding: 32, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}>
+        
+        <label className="form-label" style={{ fontSize: 13 }}>Name</label>
+        <input className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} required style={{ marginBottom: 16, width: '100%' }} />
+        
+        <label className="form-label" style={{ fontSize: 13 }}>Email Address</label>
+        <input className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required style={{ marginBottom: 16, width: '100%' }} />
+        
+        <label className="form-label" style={{ fontSize: 13 }}>Password</label>
+        <input className="form-input" type="password" placeholder="Min 6 characters" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={{ marginBottom: 24, width: '100%' }} />
+        
+        <button type="submit" className="btn btn-primary btn-lg" style={{ width: "100%", marginBottom: 16 }} disabled={loading}>
+          {loading ? 'Creating...' : 'Create Account'}
+        </button>
+        
+        {error && <div style={{ color: "var(--danger)", marginBottom: 16, fontSize: 13, fontWeight: 700, textAlign: 'center', background: 'rgba(255,77,106,0.1)', padding: 8, borderRadius: 6 }}>{error}</div>}
+
+        <div style={{ textAlign: 'center', marginTop: 16, fontSize: 14 }}>
+          <span style={{ color: 'var(--text-muted)' }}>Already have an account? </span>
+          <Link href="/account/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign In</Link>
         </div>
-        <div>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            style={{ width: "100%", padding: 10, marginBottom: 12, borderRadius: 8, fontSize: 18 }}
-          />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            style={{ width: "100%", padding: 10, marginBottom: 12, borderRadius: 8, fontSize: 18 }}
-          />
-        </div>
-        <button type="submit" style={{ width: "100%", padding: 10, borderRadius: 8, background: "#f472b6", color: "#fff", fontWeight: 700, fontSize: 18 }}>Register</button>
-        {error && <div style={{ color: "#f472b6", marginTop: 8 }}>{error}</div>}
-        {success && <div style={{ color: "#22c55e", marginTop: 8 }}>Registration successful! Redirecting...</div>}
       </form>
     </div>
   );

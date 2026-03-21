@@ -14,7 +14,7 @@ export default function EditorShell({ model, pageId }: { model: any; pageId?: st
 
   // Handler for drag/resize preview (optional, for visual feedback)
   function handleChangeFrame(rect: any, nodeId?: string) {
-    if (!nodeId) nodeId = selectedId;
+    if (!nodeId) nodeId = selectedId ?? "";
     if (!nodeId) return;
     setModelState((prev: any) => {
       const next = { ...prev, nodes: { ...prev.nodes } };
@@ -88,7 +88,7 @@ export default function EditorShell({ model, pageId }: { model: any; pageId?: st
           style={{ margin: "8px 0", padding: "8px 16px", background: "#2ecc40", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer" }}
           onClick={() => {
             const id = crypto.randomUUID();
-            setModelState(prev => {
+            setModelState((prev: any) => {
               const frame = { x: 200, y: 120, w: 240, h: 60 };
               const node = {
                 id,
