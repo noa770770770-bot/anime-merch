@@ -36,7 +36,7 @@ export async function GET() {
       select: { id: true, name: true }
     });
     
-    const topProducts = items.map(item => {
+    const topProducts = items.map((item: any) => {
       const prodName = products.find(p => p.id === item.productId)?.name || 'Unknown';
       // Truncate name for charting
       const shortName = prodName.length > 20 ? prodName.substring(0, 20) + '...' : prodName;
