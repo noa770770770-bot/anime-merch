@@ -14,7 +14,7 @@ function makePrisma() {
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
   const adapter = new PrismaLibSql(libsql);
-  return new PrismaClient({ adapter } as any);
+  return new PrismaClient({ adapter, datasourceUrl: "file:./dev.db" } as any);
 }
 
 export const prisma = globalForPrisma.prisma ?? makePrisma();
