@@ -5,19 +5,19 @@ import { createClient } from "@libsql/client";
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function makePrisma() {
-  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("Missing TURSO_DATABASE_URL or DATABASE_URL environment variable");
+  const url = process.env["TURSO_DATABASE_URL"] || process.env["DATABASE_URL"];
+  if (!url || url === "undefined" || url === "null") {
+    throw new Error("CRITICAL: Missing true TURSO_DATABASE_URL environment variable. Found literal string: " + url + ". Please double-check your Netlify settings.");
   }
   // Inject a dummy URL into Node.js so Prisma's strict
   // runtime validation engine doesn't crash on Netlify
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
+  if (!process.env["DATABASE_URL"] || process.env["DATABASE_URL"] === "undefined") {
+    process.env["DATABASE_URL"] = "file:./dev.db";
   }
 
   const libsql = createClient({
     url,
-    authToken: process.env.TURSO_AUTH_TOKEN,
+    authToken: process.env["TURSO_AUTH_TOKEN"],
   });
   const adapter = new PrismaLibSql(libsql);
   
