@@ -32,7 +32,7 @@ export async function GET() {
     });
 
     const products = await prisma.product.findMany({
-      where: { id: { in: items.map(i => i.productId) } },
+      where: { id: { in: items.map((i: any) => i.productId) } },
       select: { id: true, name: true }
     });
     
