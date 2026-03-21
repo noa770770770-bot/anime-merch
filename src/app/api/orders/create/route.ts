@@ -13,7 +13,7 @@ export async function POST(req: Request){
     // validate and compute totals from DB
     const ids = items.map((i:any)=> i.productId);
     const products = await prisma.product.findMany({ where: { id: { in: ids } }, include: { variants: true } });
-    const productMap = new Map(products.map(p=>[p.id, p]));
+    const productMap = new Map(products.map((p: any) => [p.id, p]));
 
     let totalILS = 0;
     const orderItemsData:any[] = [];
