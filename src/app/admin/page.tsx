@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
 
   // Calculate revenue
   const orders = await prisma.order.findMany({ where: { status: { in: ['CREATED', 'PAID', 'FULFILLED', 'SHIPPED'] } } });
-  const revenue = orders.reduce((s, o) => s + o.totalILS, 0);
+  const revenue = orders.reduce((s: number, o: any) => s + o.totalILS, 0);
 
   return (
     <div>
