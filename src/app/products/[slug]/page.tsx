@@ -14,16 +14,17 @@ type Props = {
 
 export default async function ProductDetail({ params }: Props) {
   const { slug } = await params;
-  const product = await prisma.product.findUnique({
+  const productRaw = await prisma.product.findUnique({
     where: { slug },
-    include: { variants: true, reviews: { orderBy: { createdAt: 'desc' }, take: 10 }, category: true },
+    include: { variants: true, reviews: { orderBy: { createdAt: 'desc' }, take: 10 }, category: true } as any,
   });
 
-  if (!product) notFound();
+  if (!productRaw) notFound();
+  const product = productRaw as any;
 
   // Handle images
   let images: string[] = [];
-  if (Array.isArray(product.images)) images = product.images.filter((i): i is string => typeof i === 'string' && i.trim() !== '');
+  if (Array.isArray(product.images)) images = product.images.filter((i: any): i is string => typeof i === 'string' && i.trim() !== '');
   if (!images.length && product.imageUrl) images = [product.imageUrl];
   if (!images.length) images = ['/products/anime-ai-placeholder.svg'];
 
@@ -32,8 +33,8 @@ export default async function ProductDetail({ params }: Props) {
     where: { 
       active: true, 
       id: { not: product.id },
-      ...(product.categoryId ? { categoryId: product.categoryId } : {})
-    },
+      ...((product as any).categoryId ? { categoryId: (product as any).categoryId } : {})
+    } as any,
     take: 4,
     orderBy: { createdAt: 'desc' },
   });

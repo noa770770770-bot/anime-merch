@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const promos = await prisma.promoCode.findMany({ orderBy: { createdAt: 'desc' } });
+    const promos = await (prisma as any).promoCode.findMany({ orderBy: { createdAt: 'desc' } });
     return NextResponse.json({ promos });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     if (!code || !discountPercentage) {
       return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
     }
-    const pc = await prisma.promoCode.create({
+    const pc = await (prisma as any).promoCode.create({
       data: {
         code: code.toUpperCase(),
         discountPercentage: Number(discountPercentage),

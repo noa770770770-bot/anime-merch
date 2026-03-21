@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { code } = await req.json();
     if (!code) return NextResponse.json({ error: 'Please enter a promo code' }, { status: 400 });
 
-    const promo = await prisma.promoCode.findUnique({
+    const promo = await (prisma as any).promoCode.findUnique({
       where: { code: String(code).toUpperCase() }
     });
 

@@ -20,7 +20,7 @@ export async function POST(req: Request){
     const variantChecks: { variantId: string, qty: number }[] = [];
 
     for(const it of items){
-      const prod = productMap.get(it.productId);
+      const prod = productMap.get(it.productId) as any;
       if(!prod) return NextResponse.json({ ok:false, error:'product_not_found', item: it }, { status:400 });
       let price = prod.priceILS;
       let variantId = null;
@@ -40,7 +40,7 @@ export async function POST(req: Request){
 
     // Apply Promo Code discounts securely server-side
     if (promoCodeId) {
-       const promo = await prisma.promoCode.findUnique({ where: { id: promoCodeId } });
+       const promo = await (prisma as any).promoCode.findUnique({ where: { id: promoCodeId } });
        if (!promo || !promo.active || (promo.usageLimit && promo.usageCount >= promo.usageLimit) || (promo.expiresAt && promo.expiresAt < new Date())) {
            return NextResponse.json({ ok: false, error: 'Promo invalid or expired' }, { status: 400 });
        }
@@ -65,10 +65,10 @@ export async function POST(req: Request){
         }
       }
 
-      const order = await tx.order.create({ data: { email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry, totalILS, status: 'CREATED', promoCodeId: promoCodeId || null } });
+      const order = await tx.order.create({ data: { email, shippingName, shippingPhone, shippingAddress1, shippingAddress2, shippingCity, shippingZip, shippingCountry, totalILS, status: 'CREATED', promoCodeId: promoCodeId || null } as any });
       
       if (promoCodeId) {
-         await tx.promoCode.update({ where: { id: promoCodeId }, data: { usageCount: { increment: 1 } } });
+         await (tx as any).promoCode.update({ where: { id: promoCodeId }, data: { usageCount: { increment: 1 } } });
       }
 
       for(const oi of orderItemsData){
@@ -85,7 +85,7 @@ export async function POST(req: Request){
     try {
       let itemsListHtml = '';
       for (const oi of orderItemsData) {
-        const p = productMap.get(oi.productId);
+        const p = productMap.get(oi.productId) as any;
         itemsListHtml += `<li><strong>${p?.name || oi.productId}</strong> (Qty <strong>${oi.qty}</strong>) - ${oi.priceILS * oi.qty} ₪</li>`;
       }
       const orderHtml = `

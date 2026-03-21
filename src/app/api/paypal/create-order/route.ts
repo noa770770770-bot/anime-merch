@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     let userRecord = null;
     if (session?.user?.email) {
       userRecord = await prisma.user.findUnique({ where: { email: session.user.email } });
-      if (userRecord?.isVIP) isVIP = true;
+      if ((userRecord as any)?.isVIP) isVIP = true;
     }
 
     // compute total from DB prices
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     // Apply specific Promo Codes ON TOP of VIP
     if (promoCodeId) {
-       const promo = await prisma.promoCode.findUnique({ where: { id: promoCodeId } });
+       const promo = await (prisma as any).promoCode.findUnique({ where: { id: promoCodeId } });
        if (promo && promo.active && (!promo.usageLimit || promo.usageCount < promo.usageLimit) && (!promo.expiresAt || promo.expiresAt > new Date())) {
            totalILS = Math.max(0, totalILS - Math.round(totalILS * (promo.discountPercentage / 100)));
        }
