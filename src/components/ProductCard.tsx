@@ -10,10 +10,16 @@ export default function ProductCard({ product }: { product: any }) {
 
   return (
     <Link href={`/products/${product.slug}`} style={{ textDecoration: 'none' }}>
-      <article className="card" style={{ cursor: 'pointer', position: 'relative' }}>
-        {/* Image */}
+      <article className="card product-card-hover" style={{ 
+        cursor: 'pointer', position: 'relative', overflow: 'hidden', 
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(5px)',
+        border: '1px solid rgba(255,255,255,0.08)'
+      }}>
+        {/* Image Container */}
         <div style={{
-          aspectRatio: '4/3',
+          aspectRatio: '1/1',
           overflow: 'hidden',
           background: 'var(--bg-surface)',
           position: 'relative',
@@ -21,18 +27,36 @@ export default function ProductCard({ product }: { product: any }) {
           <img
             src={img}
             alt={product.name}
+            className="product-image-zoom"
             style={{
               width: '100%', height: '100%',
               objectFit: 'cover',
-              transition: 'transform 0.4s ease',
+              transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            onMouseOver={(e) => { (e.target as HTMLImageElement).style.transform = 'scale(1.08)'; }}
-            onMouseOut={(e) => { (e.target as HTMLImageElement).style.transform = 'scale(1)'; }}
           />
 
           {/* Badges */}
-          <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: 6 }}>
-            {isNew && <span className="badge badge-new">New</span>}
+          <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6, zIndex: 2 }}>
+            {isNew && (
+              <span className="badge" style={{ 
+                background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+                color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase',
+                padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                boxShadow: '0 4px 12px rgba(255, 61, 113, 0.4)'
+              }}>
+                New
+              </span>
+            )}
+          </div>
+
+          {/* Glass Overlay on Hover (via CSS class later) */}
+          <div className="product-overlay" style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(10,10,18,0.8), transparent)',
+            opacity: 0, transition: 'opacity 0.4s ease',
+            display: 'flex', alignItems: 'flex-end', padding: 20, zIndex: 1
+          }}>
+             <span style={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>Quick View →</span>
           </div>
 
           {/* Wishlist button */}
@@ -40,18 +64,18 @@ export default function ProductCard({ product }: { product: any }) {
         </div>
 
         {/* Info */}
-        <div style={{ padding: '14px 16px 18px' }}>
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ padding: '16px 20px 20px' }}>
+          <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
             {product.name}
           </div>
-          {product.description && (
-            <div style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {product.description}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+            <PriceDisplay amountILS={product.priceILS} className="price-tag" />
+            <div style={{ 
+              width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14
+            }}>
+              ➕
             </div>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <PriceDisplay amountILS={product.priceILS} className="price" />
-            <span className="btn btn-primary btn-sm" style={{ pointerEvents: 'none' }}>View</span>
           </div>
         </div>
       </article>

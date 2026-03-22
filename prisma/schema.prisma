@@ -26,6 +26,11 @@ model User {
   password      String?
   createdAt     DateTime  @default(now())
   
+  addressLine1  String?
+  city          String?
+  zipCode       String?
+  phoneNumber   String?
+  
   orders        Order[]
   accounts      Account[]
   sessions      Session[]

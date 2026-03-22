@@ -56,86 +56,155 @@ export default async function ProductsPage({ searchParams }: Props) {
   ]);
 
   const totalPages = Math.ceil(totalItems / perPage);
+  const hasActiveFilters = !!(minPrice || maxPrice || inStock || q || category);
 
   return (
-    <div className="container" style={{ padding: '32px 20px' }}>
-      {/* Page Header */}
-      <div className="page-header" style={{ marginBottom: 24 }}>
-        <div>
-          <h1>Shop All Products</h1>
-          <p className="page-subtitle">{totalItems} product{totalItems !== 1 ? 's' : ''} found</p>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {/* Premium Hero Header */}
+      <section style={{ 
+        position: 'relative', height: '300px', display: 'flex', alignItems: 'center', 
+        justifyContent: 'center', overflow: 'hidden', marginBottom: 40,
+        background: 'linear-gradient(rgba(10,10,18,0.7), rgba(10,10,18,0.9)), url("https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000&auto=format&fit=crop") center/cover no-repeat'
+      }}>
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 20px' }}>
+          <h1 style={{ 
+            fontSize: 'max(3rem, 5vw)', fontWeight: 900, marginBottom: 12, 
+            background: 'linear-gradient(135deg, #fff, var(--text-secondary))',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.03em'
+          }}>
+            {sort === 'newest' ? '✨ New Arrivals' : '🛍️ Shop All'}
+          </h1>
+          <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 18, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Exclusive Japanese Collectibles
+          </p>
         </div>
-      </div>
+        {/* Animated Background Glow */}
+        <div style={{ 
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: '150%', height: '150%', background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
+          opacity: 0.4, pointerEvents: 'none'
+        }}></div>
+      </section>
 
-      {/* Top Search & Sort Bar */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center', padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-        <form method="get" style={{ display: 'flex', gap: 8, flex: '1 1 280px' }}>
-          {category && <input type="hidden" name="category" value={category} />}
-          {sort && <input type="hidden" name="sort" value={sort} />}
-          <input name="q" type="text" placeholder="🔍 Search products..." defaultValue={q || ''} className="form-input" style={{ flex: 1 }} />
-          <button type="submit" className="btn btn-primary btn-sm">Search</button>
-        </form>
-
-        <form method="get" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {category && <input type="hidden" name="category" value={category} />}
-          {q && <input type="hidden" name="q" value={q} />}
-          <select name="sort" defaultValue={sort || 'newest'} className="form-select" style={{ minWidth: 160 }}>
-            <option value="newest">Newest First</option>
-            <option value="price_asc">Price: Low → High</option>
-            <option value="price_desc">Price: High → Low</option>
-            <option value="name">Name A-Z</option>
-          </select>
-          <button type="submit" className="btn btn-secondary btn-sm" style={{ padding: '8px 12px' }}>Sort</button>
-        </form>
-      </div>
-
-      {/* Compact Category & Filter Row */}
-      <ProductFilters categories={categories} />
-
-      {/* Product Grid — Full Width */}
-      {products.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">🔍</div>
-          <h3>No products found</h3>
-          <p>Try adjusting your search or filters.</p>
-          <Link href="/products" className="btn btn-secondary" style={{ marginTop: 16 }}>Clear Filters</Link>
-        </div>
-      ) : (
-        <>
-          <div className="product-grid">
-            {products.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 48, padding: '24px 0', borderTop: '1px solid var(--border)' }}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
-                const paramsObj = new URLSearchParams();
-                if (category) paramsObj.set('category', category);
-                if (sort) paramsObj.set('sort', sort);
-                if (q) paramsObj.set('q', q);
-                if (minPrice) paramsObj.set('minPrice', minPrice);
-                if (maxPrice) paramsObj.set('maxPrice', maxPrice);
-                if (inStock) paramsObj.set('inStock', inStock);
-                paramsObj.set('page', p.toString());
-                
-                return (
-                  <Link
-                    key={p}
-                    href={`/products?${paramsObj.toString()}`}
-                    className={`btn ${page === p ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ minWidth: 40, padding: 8, textAlign: 'center' }}
-                  >
-                    {p}
-                  </Link>
-                );
-              })}
+      <div className="container">
+        {/* Unified Search & Filter Bar */}
+        <div className="glass" style={{ 
+          display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap', 
+          alignItems: 'center', padding: '16px 24px', borderRadius: 'var(--radius-lg)',
+          position: 'sticky', top: 'calc(var(--header-height) + 12px)', zIndex: 10,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+        }}>
+          {/* Search form */}
+          <form method="get" style={{ display: 'flex', gap: 10, flex: '1 1 320px' }}>
+            {category && <input type="hidden" name="category" value={category} />}
+            {sort && <input type="hidden" name="sort" value={sort} />}
+            <div style={{ position: 'relative', flex: 1 }}>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
+              <input 
+                name="q" type="text" placeholder="Search characters, figures, apparel..." 
+                defaultValue={q || ''} className="form-input" 
+                style={{ paddingLeft: 40, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }} 
+              />
             </div>
+            <button type="submit" className="btn btn-primary" style={{ padding: '0 24px' }}>Find</button>
+          </form>
+
+          {/* Sort Select */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>SORT BY</span>
+            <form method="get">
+              {category && <input type="hidden" name="category" value={category} />}
+              {q && <input type="hidden" name="q" value={q} />}
+              <select 
+                name="sort" defaultValue={sort || 'newest'} 
+                onChange={(e) => e.target.form?.submit()}
+                className="form-select" style={{ minWidth: 180, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}
+              >
+                <option value="newest">Featured: Newest</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="name">Alphabetical (A-Z)</option>
+              </select>
+            </form>
+          </div>
+        </div>
+
+        {/* Categories Section */}
+        <div style={{ marginBottom: 32 }}>
+          <ProductFilters categories={categories} />
+        </div>
+
+        {/* Results Info */}
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+             Showing <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{products.length}</span> of <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{totalItems}</span> items
+          </div>
+          {hasActiveFilters && (
+            <Link href="/products" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 700 }}>✕ Clear all filters</Link>
           )}
-        </>
-      )}
+        </div>
+
+        {/* Product Grid */}
+        {products.length === 0 ? (
+          <div style={{ 
+            padding: '100px 20px', textAlign: 'center', background: 'var(--bg-card)', 
+            borderRadius: 'var(--radius-lg)', border: '1px dotted var(--border)' 
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🥡</div>
+            <h3 style={{ fontSize: 24, marginBottom: 8 }}>Empty Box!</h3>
+            <p style={{ color: 'var(--text-muted)' }}>We couldn't find any products matching your specific filters.</p>
+            <Link href="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Reset Search</Link>
+          </div>
+        ) : (
+          <>
+            <div className="product-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 32 }}>
+              {products.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Pagination Upgrade */}
+            {totalPages > 1 && (
+              <div style={{ 
+                display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, 
+                marginTop: 64, padding: '32px 0', borderTop: '1px solid var(--border)' 
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', marginRight: 12 }}>PAGE</span>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
+                  const paramsObj = new URLSearchParams();
+                  if (category) paramsObj.set('category', category);
+                  if (sort) paramsObj.set('sort', sort);
+                  if (q) paramsObj.set('q', q);
+                  paramsObj.set('page', p.toString());
+                  
+                  return (
+                    <Link
+                      key={p}
+                      href={`/products?${paramsObj.toString()}`}
+                      className={`btn ${page === p ? 'btn-primary' : 'btn-ghost'}`}
+                      style={{ 
+                        minWidth: 44, height: 44, padding: 0, 
+                        background: page === p ? 'var(--accent)' : 'rgba(255,255,255,0.03)',
+                        borderRadius: 'var(--radius)'
+                      }}
+                    >
+                      {p}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Decorative background flare */}
+      <div style={{ 
+        position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', 
+        background: 'radial-gradient(circle, var(--accent2-glow) 0%, transparent 70%)',
+        opacity: 0.1, pointerEvents: 'none', zIndex: -1 
+      }}></div>
     </div>
   );
 }
