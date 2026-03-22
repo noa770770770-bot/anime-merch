@@ -16,12 +16,13 @@ export async function GET() {
   }
 }
 
+import { cookies } from 'next/headers';
+
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const cookieStore = await cookies();
+  const isAdmin = cookieStore.get('admin')?.value === '1';
   
-  // Basic admin check - in this project, admin is the user with email 'admin@otakumerch.com' or similar
-  // Adjust based on your Auth implementation
-  if (!session) {
+  if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
