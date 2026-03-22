@@ -2,30 +2,29 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function AdminProducts(props: { searchParams: Promise<any> }) {
-  try {
-    const searchParams = await props.searchParams;
-    const q = searchParams?.q;
-    const category = searchParams?.category;
+  const searchParams = await props.searchParams;
+  const q = searchParams?.q;
+  const category = searchParams?.category;
 
-    const where: any = {};
-    if (q) {
-      where.OR = [
-        { name: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-      ];
-    }
-    if (category) {
-      where.category = { slug: category };
-    }
+  const where: any = {};
+  if (q) {
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { description: { contains: q, mode: 'insensitive' } },
+    ];
+  }
+  if (category) {
+    where.category = { slug: category };
+  }
 
-    const [products, categories] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        include: { variants: true, category: true } as any
-      }),
-      prisma.category.findMany({ orderBy: { name: 'asc' } })
-    ]);
+  const [products, categories] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: { variants: true, category: true } as any
+    }),
+    prisma.category.findMany({ orderBy: { name: 'asc' } })
+  ]);
 
   return (
     <div>
@@ -53,7 +52,6 @@ export default async function AdminProducts(props: { searchParams: Promise<any> 
             name="category" defaultValue={category || ''}
             className="form-select"
             style={{ width: 200, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
-            onChange={(e) => e.target.form?.submit()}
           >
             <option value="">All Categories</option>
             {categories.map((c: any) => (
@@ -154,13 +152,4 @@ export default async function AdminProducts(props: { searchParams: Promise<any> 
       )}
     </div>
   );
-  } catch (error: any) {
-    return (
-       <div className="p-8 bg-red-900/20 border border-red-500 rounded-lg" style={{ color: 'red', whiteSpace: 'pre-wrap' }}>
-         <h1 className="text-2xl font-bold mb-4">Diagnostic Error Caught</h1>
-         <div>{error.message}</div>
-         <div>{error.stack}</div>
-       </div>
-    );
-  }
 }
