@@ -33,6 +33,21 @@ export default async function Home() {
         background: `linear-gradient(rgba(10,10,18,0.4), rgba(10,10,18,0.7)), url("${content.home_hero_image || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000'}") center/cover no-repeat`
       }}>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
+          
+          {/* Restored Main Logo */}
+          <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+            <img 
+              src="/logo.png" 
+              alt="Otaku Merch Logo" 
+              style={{ 
+                width: 140, height: 140, objectFit: 'contain',
+                filter: 'drop-shadow(0 0 40px rgba(124, 91, 245, 0.5))',
+                borderRadius: '50%',
+                border: '2px solid rgba(255,255,255,0.1)'
+              }} 
+            />
+          </div>
+
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
             {content.home_hero_tagline || '✦ Premium Anime Merchandise ✦'}
           </div>

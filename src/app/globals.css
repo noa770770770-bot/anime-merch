@@ -178,17 +178,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .product-card-hover:hover {
-  border-color: var(--accent2);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.4), var(--shadow-glow-purple);
-  transform: translateY(-8px);
+  border-color: rgba(124, 91, 245, 0.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 30px rgba(124,91,245,0.1);
+  transform: translateY(-6px);
 }
 
 .product-card-hover:hover .product-image-zoom {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .product-card-hover:hover .product-overlay {
   opacity: 1 !important;
+}
+
+.product-card-hover:hover .btn-details {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  border-color: var(--text-primary);
 }
 
 .glass {
