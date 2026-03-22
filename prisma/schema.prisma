@@ -167,3 +167,8 @@ model WishlistItem {
   
   @@unique([userId, productId])
 }
+
+model SiteContent {
+  key   String @id
+  value String
+}
