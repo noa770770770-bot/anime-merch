@@ -1,9 +1,10 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
-export default async function AdminProducts({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const params = await searchParams;
-  const { q, category } = params;
+export default async function AdminProducts(props: { searchParams: Promise<any> }) {
+  const searchParams = await props.searchParams;
+  const q = searchParams?.q;
+  const category = searchParams?.category;
 
   const where: any = {};
   if (q) {
@@ -20,7 +21,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
     prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: { variants: true, category: true }
+      include: { variants: true }
     }),
     prisma.category.findMany({ orderBy: { name: 'asc' } })
   ]);

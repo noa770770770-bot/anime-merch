@@ -69,8 +69,12 @@ export default async function ProductsPage({ searchParams }: Props) {
   const hasActiveFilters = !!(minPrice || maxPrice || inStock || q || category);
 
   const showArrivals = sort === 'newest';
-  const heroTitle = showArrivals ? (content.arrivals_hero_title || '✨ New Arrivals') : (content.shop_hero_title || '🛍️ Shop All');
-  const heroSubtitle = showArrivals ? (content.arrivals_hero_subtitle || 'The Fresh Drops direct from Tokyo') : (content.shop_hero_subtitle || 'Exclusive Japanese Collectibles');
+  const heroTitle = showArrivals 
+    ? (content['arrivals_hero_title'] || '✨ New Arrivals') 
+    : (content['shop_hero_title'] || '🛍️ Shop All');
+  const heroSubtitle = showArrivals 
+    ? (content['arrivals_hero_subtitle'] || 'The Fresh Drops direct from Tokyo') 
+    : (content['shop_hero_subtitle'] || 'Exclusive Japanese Collectibles');
   const heroImage = content.shop_hero_image || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000';
 
   return (
