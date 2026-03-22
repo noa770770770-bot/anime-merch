@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useSession, signOut } from 'next-auth/react';
 import LiveSearch from './LiveSearch';
 
 export default function Header() {
+  const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { totalQuantity } = useCart();
@@ -49,9 +51,20 @@ export default function Header() {
             <LiveSearch />
           </div>
 
-          <Link href="/account" className="btn btn-ghost btn-icon" aria-label="Account" style={{ fontSize: 20 }}>
-            👤
-          </Link>
+          {status === 'authenticated' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Link href="/account" className="btn btn-ghost" style={{ fontSize: 13, fontWeight: 700, gap: 8 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', background: 'var(--bg-surface)' }}>
+                  <img src={session.user?.image || "/logo.png"} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <span className="desktop-nav">{session.user?.name?.split(' ')[0]}</span>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/account" className="btn btn-ghost btn-icon" aria-label="Account" style={{ fontSize: 20 }}>
+              👤
+            </Link>
+          )}
 
           <select 
             className="currency-select"
