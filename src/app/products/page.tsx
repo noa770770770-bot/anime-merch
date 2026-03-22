@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
+import SortSelect from '@/components/SortSelect';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -112,23 +113,9 @@ export default async function ProductsPage({ searchParams }: Props) {
           </form>
 
           {/* Sort Select */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>SORT BY</span>
-            <form method="get">
-              {category && <input type="hidden" name="category" value={category} />}
-              {q && <input type="hidden" name="q" value={q} />}
-              <select 
-                name="sort" defaultValue={sort || 'newest'} 
-                onChange={(e) => e.target.form?.submit()}
-                className="form-select" style={{ minWidth: 180, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}
-              >
-                <option value="newest">Featured: Newest</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name">Alphabetical (A-Z)</option>
-              </select>
-            </form>
-          </div>
+          <Suspense fallback={<div style={{ width: 180, height: 40, background: 'rgba(255,255,255,0.05)' }}></div>}>
+            <SortSelect defaultValue={sort || 'newest'} />
+          </Suspense>
         </div>
 
         {/* Categories Section */}
