@@ -101,15 +101,16 @@ export default function NewProduct() {
             <textarea className="form-textarea" value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe the product..." />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Price (₪) *</label>
-              <input className="form-input" type="number" min="1" value={price} onChange={e => setPrice(e.target.value ? Number(e.target.value) : '')} required placeholder="99" />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Image URL</label>
-              <input className="form-input" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
-            </div>
+          <div className="form-group">
+            <label className="form-label">Price (₪) *</label>
+            <input className="form-input" type="number" min="1" value={price} onChange={e => setPrice(e.target.value ? Number(e.target.value) : '')} required placeholder="99" />
+          </div>
+          
+          <div className="form-group" style={{ 
+             background: 'rgba(124,91,245,0.05)', padding: 16, border: '1px dashed var(--accent2)', borderRadius: 'var(--radius)' 
+          }}>
+            <label className="form-label" style={{ color: 'var(--accent2)', fontWeight: 800 }}>Cover Image URL ✨</label>
+            <input className="form-input" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Paste direct image link here (e.g. from Imgur or Discord)" />
           </div>
 
           {imageUrl && (

@@ -75,21 +75,35 @@ export default async function ProductsPage({ searchParams }: Props) {
   const heroSubtitle = showArrivals 
     ? (content['arrivals_hero_subtitle'] || 'The Fresh Drops direct from Tokyo') 
     : (content['shop_hero_subtitle'] || 'Exclusive Japanese Collectibles');
-  const heroImage = content.shop_hero_image || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000';
+  
+  // Differentiate visuals!
+  const heroImage = showArrivals 
+     ? (content['arrivals_hero_image'] || 'https://images.unsplash.com/photo-1541562232579-51fc80bd819e?q=80&w=2000') 
+     : (content['shop_hero_image'] || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000');
+
+  const heroOverlay = showArrivals
+     ? 'linear-gradient(rgba(124,91,245,0.7), rgba(10,10,18,0.95))'
+     : 'linear-gradient(rgba(10,10,18,0.4), rgba(10,10,18,0.95))';
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {/* Hero Section */}
+      {/* Dynamic Hero Section */}
       <div style={{
         position: 'relative',
-        padding: '100px 20px 80px',
+        padding: showArrivals ? '140px 20px 100px' : '100px 20px 80px',
         textAlign: 'center',
-        background: `linear-gradient(rgba(10,10,18,0.3), rgba(10,10,18,0.8)), url("${heroImage}") center/cover no-repeat`,
+        background: `${heroOverlay}, url("${heroImage}") center/cover no-repeat`,
         overflow: 'hidden',
-        borderBottom: '1px solid var(--border)',
-        marginBottom: 40
+        borderBottom: showArrivals ? '2px solid var(--accent2)' : '1px solid var(--border)',
+        marginBottom: 40,
+        boxShadow: showArrivals ? '0 10px 40px rgba(124,91,245,0.1)' : 'none'
       }}>
         <div style={{ position: 'relative', zIndex: 1, animation: 'fade-up 0.8s ease' }}>
+          {showArrivals && (
+             <div style={{ display: 'inline-block', padding: '6px 16px', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: 'var(--radius-full)', marginBottom: 20, boxShadow: 'var(--shadow-glow-accent)' }}>
+               Hottest Drops
+             </div>
+          )}
           <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, marginBottom: 16 }}>
             {heroTitle}
           </h1>
@@ -99,8 +113,8 @@ export default async function ProductsPage({ searchParams }: Props) {
         </div>
         <div style={{ 
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '150%', height: '150%', background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
-          opacity: 0.4, pointerEvents: 'none'
+          width: '150%', height: '150%', background: showArrivals ? 'radial-gradient(circle, var(--accent2-glow) 0%, transparent 70%)' : 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
+          opacity: showArrivals ? 0.6 : 0.4, pointerEvents: 'none'
         }}></div>
       </div>
 

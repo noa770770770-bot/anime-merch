@@ -154,15 +154,15 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             <label className="form-label">Description</label>
             <textarea className="form-textarea" value={description} onChange={e => setDescription(e.target.value)} />
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Price (₪) *</label>
-              <input className="form-input" type="number" value={priceILS} onChange={e => setPriceILS(Number(e.target.value))} required />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Image URL</label>
-              <input className="form-input" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
-            </div>
+          <div className="form-group">
+            <label className="form-label">Price (₪) *</label>
+            <input className="form-input" type="number" value={priceILS} onChange={e => setPriceILS(Number(e.target.value))} required />
+          </div>
+          <div className="form-group" style={{ 
+             background: 'rgba(124,91,245,0.05)', padding: 16, border: '1px dashed var(--accent2)', borderRadius: 'var(--radius)' 
+          }}>
+            <label className="form-label" style={{ color: 'var(--accent2)', fontWeight: 800 }}>Cover Image URL ✨</label>
+            <input className="form-input" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Paste direct image link here (e.g. from Imgur or Discord)" />
           </div>
           {imageUrl && (
             <div style={{ borderRadius: 'var(--radius)', overflow: 'hidden', background: 'var(--bg-surface)', maxWidth: 200 }}>
