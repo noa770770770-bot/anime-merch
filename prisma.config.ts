@@ -9,8 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // ALWAYS force a raw local file string for Prisma's internal validation,
-    // otherwise the query engine masks any real `libsql://` URL as `undefined` and crashes!
-    url: "file:./dev.db",
+    // Priority: Real env var (for push/local) > dummy file (for serverless build validation)
+    url: process.env["DATABASE_URL"] || "file:./dev.db",
   },
 });
