@@ -6,6 +6,11 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
+// Force the correct URL on Render to bypass dashboard configuration bugs
+if (process.env.RENDER_EXTERNAL_URL && (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes('vercel.app'))) {
+  process.env.NEXTAUTH_URL = process.env.RENDER_EXTERNAL_URL;
+}
+
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
