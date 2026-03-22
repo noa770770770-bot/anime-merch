@@ -112,22 +112,38 @@ export default function AccountHub() {
         <main style={{ minHeight: 500 }}>
           {activeTab === 'overview' && (
             <div style={{ animation: 'fade-in 0.3s ease' }}>
-              <h2 style={{ marginBottom: 24, fontSize: 24 }}>Dashboard Overview</h2>
+              <div style={{ 
+                background: 'linear-gradient(135deg, rgba(124,91,245,0.1), rgba(255,107,107,0.1))',
+                border: '1px solid rgba(124,91,245,0.2)',
+                borderRadius: 'var(--radius-lg)', padding: 24, marginBottom: 32,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20
+              }}>
+                <div>
+                   <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                     ⭐ Otaku VIP Rewards
+                     <span className="badge badge-accent" style={{ fontSize: 10 }}>LEVEL 1</span>
+                   </h2>
+                   <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>You have <strong>450</strong> points. 50 more points until your next 10% discount!</p>
+                </div>
+                <Link href="/products" className="btn btn-primary btn-sm" style={{ boxShadow: 'var(--shadow-glow-accent)' }}>Shop & Earn</Link>
+              </div>
+
+              <h2 style={{ marginBottom: 24, fontSize: 20, fontWeight: 700 }}>Quick Actions</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-                <div onClick={() => setActiveTab('orders')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                <div onClick={() => setActiveTab('orders')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', transition: 'transform 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
                    <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
                    <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Orders Placed</div>
                    <div style={{ fontSize: 24, fontWeight: 800 }}>Check History</div>
                 </div>
-                <div onClick={() => setActiveTab('wishlist')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                <div onClick={() => setActiveTab('wishlist')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', transition: 'transform 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
                    <div style={{ fontSize: 32, marginBottom: 12 }}>❤️</div>
                    <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Saved Items</div>
                    <div style={{ fontSize: 24, fontWeight: 800 }}>{wishlist.length} Products</div>
                 </div>
-                <div onClick={() => setActiveTab('address')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                <div onClick={() => setActiveTab('address')} style={{ cursor: 'pointer', padding: 24, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', transition: 'transform 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
                    <div style={{ fontSize: 32, marginBottom: 12 }}>📍</div>
                    <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Default Address</div>
-                   <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>{address.city || "Not Set"}</div>
+                   <div style={{ fontSize: 16, fontWeight: 700, marginTop: 4 }}>{address.city || "Not Set"}</div>
                 </div>
               </div>
             </div>

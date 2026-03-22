@@ -34,8 +34,8 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
   if (q) {
     where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } },
+      { name: { contains: q } },
+      { description: { contains: q } },
     ];
   }
   if (minPrice || maxPrice) {

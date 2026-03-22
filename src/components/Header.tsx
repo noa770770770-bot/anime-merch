@@ -60,8 +60,8 @@ export default function Header({ content = {} }: { content?: Record<string, stri
           </div>
 
           {status === 'authenticated' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Link href="/account" className="btn btn-ghost" style={{ fontSize: 13, fontWeight: 700, gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }} className="group">
+              <Link href="/account/profile" className="btn btn-ghost" style={{ fontSize: 13, fontWeight: 700, gap: 8 }}>
                 <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', background: 'var(--bg-surface)' }}>
                   <img src={session.user?.image || "/logo.png"} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>

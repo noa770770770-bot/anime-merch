@@ -9,8 +9,8 @@ export default async function AdminProducts(props: { searchParams: Promise<any> 
   const where: any = {};
   if (q) {
     where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } },
+      { name: { contains: q } },
+      { description: { contains: q } },
     ];
   }
   if (category) {
