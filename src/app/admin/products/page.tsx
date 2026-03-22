@@ -21,7 +21,7 @@ export default async function AdminProducts(props: { searchParams: Promise<any> 
     prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: { variants: true, category: true }
+      // include: { variants: true, category: true } // Temporarily disable to debug 500
     }),
     prisma.category.findMany({ orderBy: { name: 'asc' } })
   ]);

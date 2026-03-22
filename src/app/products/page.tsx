@@ -60,7 +60,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       orderBy,
       skip,
       take: perPage,
-      include: { reviews: true, variants: true }
+      // include: { reviews: true, variants: true } // Temporarily disable to debug 500
     }),
     prisma.product.count({ where })
   ]);
