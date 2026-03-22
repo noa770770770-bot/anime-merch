@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 type Props = {
   searchParams: Promise<{ category?: string; sort?: string; q?: string; minPrice?: string; maxPrice?: string; inStock?: string; page?: string }>;
@@ -132,7 +133,9 @@ export default async function ProductsPage({ searchParams }: Props) {
 
         {/* Categories Section */}
         <div style={{ marginBottom: 32 }}>
-          <ProductFilters categories={categories} />
+          <Suspense fallback={<div className="glass" style={{ height: 60, borderRadius: 'var(--radius)' }}></div>}>
+            <ProductFilters categories={categories} />
+          </Suspense>
         </div>
 
         {/* Results Info */}
