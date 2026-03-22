@@ -3,13 +3,20 @@ import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 
 export default async function Home() {
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: { createdAt: 'desc' },
-    take: 8,
-  });
+  const [products, categories, contentList] = await Promise.all([
+    prisma.product.findMany({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+      take: 8,
+    }),
+    prisma.category.findMany({ take: 6 }),
+    prisma.siteContent.findMany()
+  ]);
 
-  const categories = await prisma.category.findMany({ take: 6 });
+  const content: Record<string, string> = contentList.reduce((acc: any, item: any) => {
+    acc[item.key] = item.value;
+    return acc;
+  }, {});
 
   return (
     <div>
@@ -19,49 +26,39 @@ export default async function Home() {
         textAlign: 'center',
         position: 'relative',
         overflow: 'hidden',
+        minHeight: '400px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: `linear-gradient(rgba(10,10,18,0.4), rgba(10,10,18,0.7)), url("${content.home_hero_image || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000'}") center/cover no-repeat`
       }}>
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0,
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(124,91,245,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(255,107,157,0.1) 0%, transparent 50%)',
-          pointerEvents: 'none',
-        }} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
-          {/* Prominent Store Logo */}
-          <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'center' }}>
-            <img 
-              src="/logo.png" 
-              alt="Otaku Merch — Israel Anime Store" 
-              style={{ 
-                width: 140, height: 140, objectFit: 'contain',
-                filter: 'drop-shadow(0 0 30px rgba(124, 91, 245, 0.35))',
-                borderRadius: '50%',
-              }} 
-            />
-          </div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
-            ✦ Premium Anime Merchandise ✦
+            {content.home_hero_tagline || '✦ Premium Anime Merchandise ✦'}
           </div>
           <h1 style={{
-            fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
             fontWeight: 900,
             fontFamily: 'var(--font-heading)',
             lineHeight: 1.1,
             marginBottom: 20,
+            letterSpacing: '-0.02em',
           }}>
-            Your Ultimate{' '}
-            <span style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Anime Store
-            </span>
+            {content.home_hero_title?.split(' ').map((word: string, i: number) => 
+               i === content.home_hero_title.split(' ').length - 1 ? (
+                 <span key={i} style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}> {word}</span>
+               ) : <span key={i}> {word}</span>
+            )}
           </h1>
-          <p style={{ fontSize: 18, color: 'var(--text-secondary)', maxWidth: 560, margin: '0 auto 32px', lineHeight: 1.7 }}>
-            Discover hand-picked figures, apparel, accessories, and collectibles from your favorite anime series.
+          <p style={{ fontSize: 20, color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto 32px', lineHeight: 1.7 }}>
+            {content.home_hero_subtitle || 'Discover hand-picked figures, apparel, accessories, and collectibles from your favorite anime series.'}
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/products" className="btn btn-primary btn-lg">
-              🛍️ Shop Now
+              {content.home_hero_cta_primary || '🛍️ Shop Now'}
             </Link>
             <Link href="/products?sort=newest" className="btn btn-secondary btn-lg">
-              ✨ New Arrivals
+              {content.home_hero_cta_secondary || '✨ New Arrivals'}
             </Link>
           </div>
         </div>

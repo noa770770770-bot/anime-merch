@@ -6,7 +6,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { useSession, signOut } from 'next-auth/react';
 import LiveSearch from './LiveSearch';
 
-export default function Header() {
+export default function Header({ content = {} }: { content?: Record<string, string> }) {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -29,20 +29,28 @@ export default function Header() {
       boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.4)' : 'none',
     }}>
       <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 'var(--header-height)' }}>
-        {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <img src="/logo.png" alt="Otaku Merch Logo" style={{ height: 44, width: 44, objectFit: 'contain' }} />
           <span className="desktop-logo-text" style={{ fontSize: 24, fontWeight: 900, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
-            Anime<span style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Merch</span>
+            {content.site_title?.includes(' ') ? (
+              <>
+                {content.site_title.split(' ')[0]}
+                <span style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  {content.site_title.split(' ').slice(1).join(' ')}
+                </span>
+              </>
+            ) : (
+              content.site_title || 'AnimeMerch'
+            )}
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="desktop-nav">
-          <Link href="/products" className="btn btn-ghost">Shop All</Link>
-          <Link href="/products?sort=newest" className="btn btn-ghost">New Arrivals</Link>
-          <Link href="/faq" className="btn btn-ghost">FAQ</Link>
-          <Link href="/contact" className="btn btn-ghost">Contact</Link>
+          <Link href="/products" className="btn btn-ghost">{content.nav_shop || 'Shop All'}</Link>
+          <Link href="/products?sort=newest" className="btn btn-ghost">{content.nav_arrivals || 'New Arrivals'}</Link>
+          <Link href="/faq" className="btn btn-ghost">{content.nav_faq || 'FAQ'}</Link>
+          <Link href="/contact" className="btn btn-ghost">{content.nav_contact || 'Contact'}</Link>
         </nav>
 
         {/* Actions */}

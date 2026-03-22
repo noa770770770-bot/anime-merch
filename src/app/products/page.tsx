@@ -17,7 +17,15 @@ export default async function ProductsPage({ searchParams }: Props) {
   const perPage = 12;
   const skip = (page - 1) * perPage;
 
-  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  const [categories, contentList] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: 'asc' } }),
+    prisma.siteContent.findMany()
+  ]);
+
+  const content: Record<string, string> = contentList.reduce((acc: any, item: any) => {
+    acc[item.key] = item.value;
+    return acc;
+  }, {});
 
   // Build where clause
   const where: any = { active: true };
@@ -26,14 +34,14 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
   if (q) {
     where.OR = [
-      { name: { contains: q } },
-      { description: { contains: q } },
+      { name: { contains: q, mode: 'insensitive' } },
+      { description: { contains: q, mode: 'insensitive' } },
     ];
   }
   if (minPrice || maxPrice) {
     where.priceILS = {};
-    if (minPrice) where.priceILS.gte = Number(minPrice);
-    if (maxPrice) where.priceILS.lte = Number(maxPrice);
+    if (minPrice && !isNaN(Number(minPrice))) where.priceILS.gte = Number(minPrice);
+    if (maxPrice && !isNaN(Number(maxPrice))) where.priceILS.lte = Number(maxPrice);
   }
   if (inStock === 'true') {
     where.variants = { some: { stock: { gt: 0 } } };
@@ -60,34 +68,37 @@ export default async function ProductsPage({ searchParams }: Props) {
   const totalPages = Math.ceil(totalItems / perPage);
   const hasActiveFilters = !!(minPrice || maxPrice || inStock || q || category);
 
+  const showArrivals = sort === 'newest';
+  const heroTitle = showArrivals ? (content.arrivals_hero_title || '✨ New Arrivals') : (content.shop_hero_title || '🛍️ Shop All');
+  const heroSubtitle = showArrivals ? (content.arrivals_hero_subtitle || 'The Fresh Drops direct from Tokyo') : (content.shop_hero_subtitle || 'Exclusive Japanese Collectibles');
+  const heroImage = content.shop_hero_image || 'https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000';
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {/* Premium Hero Header */}
-      <section style={{ 
-        position: 'relative', height: '300px', display: 'flex', alignItems: 'center', 
-        justifyContent: 'center', overflow: 'hidden', marginBottom: 40,
-        background: 'linear-gradient(rgba(10,10,18,0.7), rgba(10,10,18,0.9)), url("https://images.unsplash.com/photo-1578632738980-4334635c890a?q=80&w=2000&auto=format&fit=crop") center/cover no-repeat'
+      {/* Hero Section */}
+      <div style={{
+        position: 'relative',
+        padding: '100px 20px 80px',
+        textAlign: 'center',
+        background: `linear-gradient(rgba(10,10,18,0.3), rgba(10,10,18,0.8)), url("${heroImage}") center/cover no-repeat`,
+        overflow: 'hidden',
+        borderBottom: '1px solid var(--border)',
+        marginBottom: 40
       }}>
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 20px' }}>
-          <h1 style={{ 
-            fontSize: 'max(3rem, 5vw)', fontWeight: 900, marginBottom: 12, 
-            background: 'linear-gradient(135deg, #fff, var(--text-secondary))',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.03em'
-          }}>
-            {sort === 'newest' ? '✨ New Arrivals' : '🛍️ Shop All'}
+        <div style={{ position: 'relative', zIndex: 1, animation: 'fade-up 0.8s ease' }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, marginBottom: 16 }}>
+            {heroTitle}
           </h1>
-          <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 18, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Exclusive Japanese Collectibles
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto' }}>
+            {heroSubtitle}
           </p>
         </div>
-        {/* Animated Background Glow */}
         <div style={{ 
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           width: '150%', height: '150%', background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
           opacity: 0.4, pointerEvents: 'none'
         }}></div>
-      </section>
+      </div>
 
       <div className="container">
         {/* Unified Search & Filter Bar */}

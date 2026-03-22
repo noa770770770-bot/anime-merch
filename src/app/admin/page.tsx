@@ -49,6 +49,7 @@ export default async function AdminDashboard() {
       {/* Quick Actions */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 32, flexWrap: 'wrap' }}>
         <Link href="/admin/products" className="btn btn-secondary">📦 Manage Products</Link>
+        <Link href="/admin/editor" className="btn btn-secondary" style={{ background: 'var(--accent)', color: 'white' }}>🏗️ Site Editor</Link>
         <Link href="/admin/orders" className="btn btn-secondary">🧾 View Orders</Link>
         <Link href="/admin/categories" className="btn btn-secondary">🗂️ Categories</Link>
         <Link href="/admin/promos" className="btn btn-secondary">🎫 Promos</Link>

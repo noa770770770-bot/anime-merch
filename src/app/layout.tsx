@@ -30,21 +30,39 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+import prisma from '@/lib/prisma';
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const contentList = await prisma.siteContent.findMany();
+  const content: Record<string, string> = contentList.reduce((acc: any, item: any) => {
+    acc[item.key] = item.value;
+    return acc;
+  }, {});
+
   return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+        <title>{content.site_title || 'Otaku Merch — Premium Israeli Anime Store'}</title>
       </head>
       <body>
         <Providers>
-          <Header />
+          {content.announcement_bar && (
+            <div style={{ 
+              background: 'linear-gradient(90deg, var(--accent), var(--accent2))', 
+              color: '#fff', textAlign: 'center', padding: '10px 20px', 
+              fontSize: 13, fontWeight: 800, letterSpacing: '0.02em' 
+            }}>
+              {content.announcement_bar}
+            </div>
+          )}
+          <Header content={content} />
           <main style={{ minHeight: 'calc(100dvh - var(--header-height) - 200px)' }}>
             {children}
           </main>
-          <Footer />
+          <Footer content={content} />
           <ScrollToTop />
         </Providers>
       </body>

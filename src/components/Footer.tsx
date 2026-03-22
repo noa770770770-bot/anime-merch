@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function Footer() {
+export default function Footer({ content = {} }: { content?: Record<string, string> }) {
   return (
     <footer style={{
       marginTop: 80,
@@ -13,10 +13,10 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'var(--font-heading)', marginBottom: 12 }}>
-              Anime<span style={{ color: 'var(--accent)' }}>Merch</span>
+              {content.site_title?.split(' ')[0] || 'Anime'}<span style={{ color: 'var(--accent)' }}>{content.site_title?.split(' ').slice(1).join(' ') || 'Merch'}</span>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.7 }}>
-              Your one-stop shop for premium anime merchandise, figures, apparel, and collectibles.
+              {content.home_hero_subtitle || 'Your one-stop shop for premium anime merchandise, figures, apparel, and collectibles.'}
             </p>
           </div>
 
@@ -62,7 +62,7 @@ export default function Footer() {
           gap: 12,
         }}>
           <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-            © {new Date().getFullYear()} AnimeMerch. All rights reserved.
+            © {new Date().getFullYear()} {content.site_title || 'AnimeMerch'}. All rights reserved.
           </div>
           <div style={{ display: 'flex', gap: 16 }}>
             <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>🇮🇱 Prices in ILS</span>
